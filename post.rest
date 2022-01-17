@@ -2,8 +2,8 @@ POST http://localhost:3003/api/blogs HTTP/1.1
 content-type: application/json
 
 {
-    "title": "Learn Full Stack in one go",
+    "title": "Learn Full Stack in 2022",
     "author": "pdmnhn",
-    "url": "google.com",
-    "likes": 25000
+    "url": "example.com",
+    "likes": 200
 }

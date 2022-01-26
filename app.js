@@ -1,4 +1,5 @@
 const config = require("./utils/config");
+require("express-async-errors");
 const express = require("express");
 const cors = require("cors");
 const blogsRouter = require("./controllers/blogs");
@@ -8,8 +9,11 @@ const mongoose = require("mongoose");
 
 const app = express();
 
+const URI =
+  config.NODE_ENV === "test" ? config.MONGODB_TEST_URI : config.MONGODB_URI;
+
 mongoose
-  .connect(config.MONGODB_URI)
+  .connect(URI)
   .then(() => {
     logger.info("Connected to MongoDB");
   })

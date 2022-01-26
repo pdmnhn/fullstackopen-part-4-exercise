@@ -1,0 +1,10 @@
+PUT http://localhost:3003/api/blogs/61e5a262aa6e27c4373d96fa HTTP/1.1
+Content-Type: application/json
+
+{
+"title": "Learn Full Stack in 2022",
+"author": "pdmnhn",
+"url": "example.com",
+"likes": 1,
+"id": "61e5a262aa6e27c4373d96fa"
+}

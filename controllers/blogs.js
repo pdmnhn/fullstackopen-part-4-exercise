@@ -1,23 +1,55 @@
 const blogsRouter = require("express").Router();
 const Blog = require("../models/blog");
+const User = require("../models/user");
+const jwt = require("jsonwebtoken");
 
 blogsRouter.get("/", async (request, response) => {
-  const blogs = await Blog.find({});
+  const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
   response.json(blogs);
 });
 
-blogsRouter.post("/", async (request, response) => {
-  const blog = new Blog(request.body);
-  try {
-    const result = await blog.save();
-  } catch (error) {
-    response.status(400).end();
+blogsRouter.get("/:id", async (request, response) => {
+  const { id } = request.params;
+  const blog = await Blog.findById(id).populate("user", {
+    username: 1,
+    name: 1,
+  });
+  if (!blog) {
+    return response.status(404).send({ error: "blog not found" });
   }
+  response.json(blog);
+});
+
+blogsRouter.post("/", async (request, response) => {
+  if (!request.user) {
+    return response.status(401);
+  }
+  const { username, id } = request.user;
+  const { title, url, likes } = request.body;
+  const blogObj = {
+    title,
+    author: username,
+    url,
+    likes,
+    user: id,
+  };
+  const blog = new Blog(blogObj);
+  const result = await blog.save();
+  let user = await User.findById(id);
+  user.blogs = user.blogs.concat(result.id);
+  await user.save();
+  response.status(201).json(result);
 });
 
 blogsRouter.delete("/:id", async (request, response) => {
   const id = request.params.id;
-  await Blog.findByIdAndDelete(id);
+  const blog = await Blog.findById(id);
+  if (!blog) {
+    return response.status(404).end();
+  } else if (!(request.user && request.user.id === blog.user.toString())) {
+    return response.status(401).end();
+  }
+  await blog.delete();
   response.status(204).end();
 });
 

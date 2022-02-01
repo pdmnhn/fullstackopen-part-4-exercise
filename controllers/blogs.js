@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 blogsRouter.get("/", async (request, response) => {
   const blogs = await Blog.find({}).populate("user", { username: 1, name: 1 });
-  response.json(blogs);
+  response.status(200).json(blogs);
 });
 
 blogsRouter.get("/:id", async (request, response) => {
@@ -17,15 +17,20 @@ blogsRouter.get("/:id", async (request, response) => {
   if (!blog) {
     return response.status(404).send({ error: "blog not found" });
   }
-  response.json(blog);
+  response.status(200).json(blog);
 });
 
 blogsRouter.post("/", async (request, response) => {
   if (!request.user) {
-    return response.status(401);
+    return response.status(401).end();
   }
   const { username, id } = request.user;
   const { title, url, likes } = request.body;
+  if (!(url && title)) {
+    return response
+      .status(400)
+      .send({ error: "url and title are required for creating a blog" });
+  }
   const blogObj = {
     title,
     author: username,
